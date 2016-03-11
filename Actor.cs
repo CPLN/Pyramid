@@ -52,8 +52,13 @@ namespace Pyramid
         public List<Actor> Actors {
             set { actors = value; }
         }
+
         private List<Actor> actors;
 
+
+        /// <summary>
+        /// Radar gives us the other actor that are in sight or null if none is found.
+        /// </summary>
         public Actor Radar() {
             if (Dead)
                 return null;
@@ -102,24 +107,40 @@ namespace Pyramid
             return null;
         }
 
+        /// <summary>
+        /// Move the Hero to the left by steps pixels
+        /// </summary>
+        /// <param name="steps">number of pixels to move left</param>
         public void Left(int steps) {
             Direction.X = -1;
             Direction.Y = 0;
             Move(steps);
         }
 
+        /// <summary>
+        /// Move the Hero to the right by steps pixels
+        /// </summary>
+        /// <param name="steps">number of pixels to move right</param>
         public void Right(int steps) {
             Direction.X = 1;
             Direction.Y = 0;
             Move(steps);
         }
 
+        /// <summary>
+        /// Move the Hero to the bottom by steps pixels
+        /// </summary>
+        /// <param name="steps">number of pixels to move down</param>
         public void Down(int steps) {
             Direction.X = 0;
             Direction.Y = -1;
             Move(steps);
         }
 
+        /// <summary>
+        /// Move the Hero to the top by steps pixels
+        /// </summary>
+        /// <param name="steps">number of pixels to move up</param>
         public void Up(int steps) {
             Direction.X = 0;
             Direction.Y = 1;
@@ -134,7 +155,6 @@ namespace Pyramid
                 Thread.Sleep(SleepTime);
                 steps -= (int) Speed;
             }
-            Console.WriteLine("is dead... {0} ({1})", Dead, steps);
         }
     }
 }

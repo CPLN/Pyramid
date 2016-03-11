@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Dynamic;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -26,7 +25,7 @@ namespace Pyramid
 
         private ToolStrip toolStrip;
         private Thread runner;
-        private System.Threading.Timer tick;
+        private System.Threading.Timer animationTick;
 
         private int frame;
         private bool done;
@@ -72,20 +71,8 @@ namespace Pyramid
             };
             toolStrip = new ToolStrip
             {
+                Name = "Toolbar"
             };
-            var statusStrip = new StatusStrip
-            {
-                Parent = toolStripContainer.BottomToolStripPanel,
-                Dock = DockStyle.Fill,
-                LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow
-            };
-            /*var statusLabelStrip = new ToolStripStatusLabel
-            {
-                Dock = DockStyle.Fill,
-                Text = "Status"
-            };
-            statusStrip.Items.AddRange(new ToolStripItem[]{ statusLabelStrip });
-            */
 
             toolStrip.Items.AddRange(new ToolStripItem[]
                 {
@@ -98,7 +85,6 @@ namespace Pyramid
                 });
 
             toolStripContainer.TopToolStripPanel.Controls.Add(toolStrip);
-            //toolStripContainer.BottomToolStripPanel.Controls.Add(statusStrip);
 
             var splitter = new SplitContainer
             {
@@ -162,7 +148,6 @@ namespace Pyramid
         {
             try
             {
-                Console.WriteLine("tick");
                 Invoke(new MethodInvoker(onUpdate), null);
             }
             catch (ObjectDisposedException)
@@ -172,11 +157,11 @@ namespace Pyramid
 
         private void onFormClosing(object sender, FormClosingEventArgs e)
         {
-            if (tick != null)
+            if (animationTick != null)
             {
-                tick.Change(Timeout.Infinite, Timeout.Infinite);
-                tick.Dispose();
-                tick = null;
+                animationTick.Change(Timeout.Infinite, Timeout.Infinite);
+                animationTick.Dispose();
+                animationTick = null;
             }
             if (runner != null)
             {
@@ -200,18 +185,19 @@ namespace Pyramid
             fond.Invalidate();
             fond.Update();
 
+            done |= !runner.IsAlive;
+
             if (Hero.Dead)
             {
                 done = true;
                 DeadHero(this, new EventArgs());
             }
+
             if (done)
             {
-                Console.WriteLine("kill tick");
-
-                tick.Change(Timeout.Infinite, Timeout.Infinite);
-                tick.Dispose();
-                tick = null;
+                animationTick.Change(Timeout.Infinite, Timeout.Infinite);
+                animationTick.Dispose();
+                animationTick = null;
             }
         }
 
@@ -234,7 +220,7 @@ namespace Pyramid
             Hero.Actors = actors;
             done = false;
             frame = 0;
-            tick = new System.Threading.Timer(_ => onTick(), null, 0, 1000 / 60);
+            animationTick = new System.Threading.Timer(_ => onTick(), null, 0, 1000 / 60);
 
             runner = new Thread(new ThreadStart(evaluator.Run));
             runner.Start();
@@ -248,7 +234,6 @@ namespace Pyramid
 
         public void End()
         {
-            //MessageBox.Show("Victoire!");
             done = true;
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 
 using ExpressionEvaluator;
@@ -14,7 +13,6 @@ namespace Pyramid
 
         public Evaluator()
         {
-            
         }
 
         public void Run()
@@ -25,11 +23,10 @@ namespace Pyramid
             registry.RegisterType("Actor", typeof(Actor));
 
             var expression = new CompiledExpression(Code)
-                {
-                    TypeRegistry = registry,
-                    ExpressionType = CompiledExpressionType.StatementList
-                };
-
+            {
+                TypeRegistry = registry,
+                ExpressionType = CompiledExpressionType.StatementList
+            };
 
             try
             {

@@ -22,13 +22,14 @@ namespace Pyramid
         {
             var form = (MainForm) sender;
 
+            // do-while is buggy: https://github.com/RupertAvery/csharpeval/pull/10
             form.Code = "// Demo level\n\n"
-                + "Actor ennemi;\n"
                 + "Hero.Right(100);\n"
                 + "Hero.Up(50);\n\n"
-                + "do {\n"
+                + "var ennemi = Hero.Radar();\n"
+                + "while (ennemi != null && ennemi.Danger) {\n"
                 + "    ennemi = Hero.Radar();\n"
-                + "} while(ennemi.Danger);\n\n"
+                + "}\n\n"
                 + "Hero.Up(150);\n"
                 + "Hero.Right(100);\n";
         }
@@ -67,7 +68,9 @@ namespace Pyramid
 
         private static void onDeadHero(object sender, EventArgs e)
         {
-            MessageBox.Show("Votre héros est mort...");
+            // Ceci ne peut pas être fait, car on est dans un autre thread...
+            //MessageBox.Show("Votre héros est mort...");
+            Console.WriteLine("Votre héros est mort...");
         }
 	}
 
@@ -78,7 +81,7 @@ namespace Pyramid
 
         public override void Tick(int frame)
         {
-            round = (frame / 60) % colors.Length;
+            round = (frame / 50) % colors.Length;
 
             Color = colors[round];
             Danger = round > 0;
@@ -86,11 +89,8 @@ namespace Pyramid
 
         public override void Collision(Actor other)
         {
-            if (Color == Color.Red)
-            {
-                // Kill
-                other.Dead = true;
-            }
+            // Kill
+            other.Dead |= Color == Color.Red;
         }
     }
 
@@ -100,6 +100,7 @@ namespace Pyramid
 
         public override void Collision(Actor other)
         {
+            Console.WriteLine("Victoire!");
             Main.End();
         }
     }
