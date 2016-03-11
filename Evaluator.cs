@@ -1,12 +1,15 @@
 ﻿using System;
-using ExpressionEvaluator;
+using System.Drawing;
 using System.Windows.Forms;
+
+using ExpressionEvaluator;
+
 
 namespace Pyramid
 {
     public class Evaluator
     {
-        public Actor Actor;
+        public Hero Hero;
         public string Code;
 
         public Evaluator()
@@ -19,6 +22,7 @@ namespace Pyramid
             var registry = new TypeRegistry();
             registry.RegisterDefaultTypes();
             registry.RegisterType("Console", typeof(Console));
+            registry.RegisterType("Actor", typeof(Actor));
 
             var expression = new CompiledExpression(Code)
                 {
@@ -32,7 +36,7 @@ namespace Pyramid
                 var f = expression.ScopeCompile<Evaluator>();
                 f(this);
             }
-            catch (ArgumentException e) {
+            catch (Exception e) {
                 MessageBox.Show(e.Message);
             }
         }
