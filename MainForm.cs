@@ -14,13 +14,14 @@ namespace Pyramid
     {
         public Hero Hero { get; private set; }
 
-        public string Code {
+        public string Code
+        {
             get { return editor.Text; }
             set { editor.Text = value; }
         }
 
         private List<Actor> actors;
-        private TextBox editor;
+        private Control editor;
         private Canvas fond;
 
         private ToolStrip toolStrip;
@@ -43,7 +44,8 @@ namespace Pyramid
             {
                 Color = Color.Blue,
                 Speed = 5,
-                AABB = {
+                AABB =
+                {
                     X = 0,
                     Y = 0,
                     Width = 50,
@@ -94,7 +96,33 @@ namespace Pyramid
 
 #if !LINUX
             var scintilla = new Scintilla();
-            // TODO
+            scintilla.Margins[0].Width = 0;
+
+            scintilla.Lexer = Lexer.Cpp;
+            scintilla.StyleResetDefault();
+            scintilla.Styles[Style.Default].Font = fontFamily;
+            scintilla.Styles[Style.Default].Size = fontSize;
+            scintilla.StyleClearAll();
+
+            scintilla.SetKeywords(0, "abstract as base break case catch checked continue default delegate do else event explicit extern false finally fixed for foreach goto if implicit in interface internal is lock namespace new null object operator out override params private protected public readonly ref return sealed sizeof stackalloc switch this throw true try typeof unchecked unsafe using var virtual while");
+            scintilla.SetKeywords(1, "bool byte char class const decimal double enum float int long sbyte short static string struct uint ulong ushort void");
+
+            var Green = Color.FromArgb(0, 128, 0);
+            var Gray = Color.FromArgb(128, 128, 128);
+            var Red = Color.FromArgb(163, 21, 21);
+            scintilla.Styles[Style.Cpp.Default].ForeColor = Color.Silver;
+            scintilla.Styles[Style.Cpp.Comment].ForeColor = Green;
+            scintilla.Styles[Style.Cpp.CommentLine].ForeColor = Green;
+            scintilla.Styles[Style.Cpp.CommentLineDoc].ForeColor = Gray;
+            scintilla.Styles[Style.Cpp.Number].ForeColor = Color.Olive;
+            scintilla.Styles[Style.Cpp.Word].ForeColor = Color.Blue;
+            scintilla.Styles[Style.Cpp.Word2].ForeColor = Color.Blue;
+            scintilla.Styles[Style.Cpp.String].ForeColor = Red;
+            scintilla.Styles[Style.Cpp.Character].ForeColor = Red;
+            scintilla.Styles[Style.Cpp.Verbatim].ForeColor = Red;
+            scintilla.Styles[Style.Cpp.StringEol].BackColor = Color.Pink;
+            scintilla.Styles[Style.Cpp.Operator].ForeColor = Color.Purple;
+            scintilla.Styles[Style.Cpp.Preprocessor].ForeColor = Color.Maroon;
 #else
             var scintilla = new TextBox {
                 WordWrap = true,
@@ -109,7 +137,8 @@ namespace Pyramid
 
             editor = scintilla;
 
-            fond = new Canvas {
+            fond = new Canvas
+            {
                 Parent = splitter.Panel2,
                 Dock = DockStyle.Fill
             };
@@ -153,6 +182,9 @@ namespace Pyramid
             catch (ObjectDisposedException)
             {
             }
+            catch (NullReferenceException)
+            {
+            }
         }
 
         private void onFormClosing(object sender, FormClosingEventArgs e)
@@ -174,7 +206,8 @@ namespace Pyramid
             frame++;
             fond.Tick(frame);
 
-            foreach (var actor in actors) {
+            foreach (var actor in actors)
+            {
                 if (actor.AABB.IntersectsWith(Hero.AABB))
                 {
                     actor.Collision(Hero);

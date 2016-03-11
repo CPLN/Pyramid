@@ -44,9 +44,9 @@ namespace Pyramid
 
             e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             // Center the display.
-            e.Graphics.TranslateTransform(rect.Right / 2f, rect.Bottom / 2f);
+            //e.Graphics.TranslateTransform(rect.Right / 2f, rect.Bottom / 2f);
             // Put the Y pointing at the top.
-            e.Graphics.ScaleTransform(1, -1);
+            //e.Graphics.ScaleTransform(1, -1);
 
             foreach (var actor in actors)
             {

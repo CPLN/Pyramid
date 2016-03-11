@@ -33,7 +33,8 @@ namespace Pyramid
                 var f = expression.ScopeCompile<Evaluator>();
                 f(this);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 MessageBox.Show(e.Message);
             }
         }

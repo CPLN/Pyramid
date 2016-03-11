@@ -44,12 +44,16 @@ namespace Pyramid
 
     public class Hero : Actor
     {
-        public int X { get { return (int) (AABB.X + .5); } }
-        public int Y { get { return (int) (AABB.Y + .5); } }
-        public int Width { get { return (int) (AABB.Width + .5); } }
-        public int Height { get { return (int) (AABB.Height + .5); } }
+        public int X { get { return (int)(AABB.X + .5); } }
 
-        public List<Actor> Actors {
+        public int Y { get { return (int)(AABB.Y + .5); } }
+
+        public int Width { get { return (int)(AABB.Width + .5); } }
+
+        public int Height { get { return (int)(AABB.Height + .5); } }
+
+        public List<Actor> Actors
+        {
             set { actors = value; }
         }
 
@@ -59,7 +63,8 @@ namespace Pyramid
         /// <summary>
         /// Radar gives us the other actor that are in sight or null if none is found.
         /// </summary>
-        public Actor Radar() {
+        public Actor Radar()
+        {
             if (Dead)
                 return null;
 
@@ -76,7 +81,7 @@ namespace Pyramid
                 dx += Width;
 
             }
-            else if(Direction.X < 0)
+            else if (Direction.X < 0)
             {
                 width /= 2;
                 dx -= width;
@@ -87,20 +92,23 @@ namespace Pyramid
                 dy += Height;
 
             }
-            else if(Direction.Y < 0)
+            else if (Direction.Y < 0)
             {
                 height /= 2;
                 dy -= height;
             }
 
-            var view = new RectangleF {
+            var view = new RectangleF
+            {
                 X = AABB.X + dx,
                 Y = AABB.Y + dy,
                 Width = width,
                 Height = height
             };
-            foreach(var actor in actors) {
-                if (view.IntersectsWith(actor.AABB)) {
+            foreach (var actor in actors)
+            {
+                if (view.IntersectsWith(actor.AABB))
+                {
                     return actor;
                 }
             }
@@ -111,7 +119,8 @@ namespace Pyramid
         /// Move the Hero to the left by steps pixels
         /// </summary>
         /// <param name="steps">number of pixels to move left</param>
-        public void Left(int steps) {
+        public void Left(int steps)
+        {
             Direction.X = -1;
             Direction.Y = 0;
             Move(steps);
@@ -121,7 +130,8 @@ namespace Pyramid
         /// Move the Hero to the right by steps pixels
         /// </summary>
         /// <param name="steps">number of pixels to move right</param>
-        public void Right(int steps) {
+        public void Right(int steps)
+        {
             Direction.X = 1;
             Direction.Y = 0;
             Move(steps);
@@ -131,9 +141,10 @@ namespace Pyramid
         /// Move the Hero to the bottom by steps pixels
         /// </summary>
         /// <param name="steps">number of pixels to move down</param>
-        public void Down(int steps) {
+        public void Down(int steps)
+        {
             Direction.X = 0;
-            Direction.Y = -1;
+            Direction.Y = 1;
             Move(steps);
         }
 
@@ -141,19 +152,21 @@ namespace Pyramid
         /// Move the Hero to the top by steps pixels
         /// </summary>
         /// <param name="steps">number of pixels to move up</param>
-        public void Up(int steps) {
+        public void Up(int steps)
+        {
             Direction.X = 0;
-            Direction.Y = 1;
+            Direction.Y = -1;
             Move(steps);
         }
 
-        protected void Move(int steps) {
+        protected void Move(int steps)
+        {
             while (steps > 0 && !Dead)
             {
                 AABB.X += Direction.X * Speed;
                 AABB.Y += Direction.Y * Speed;
                 Thread.Sleep(SleepTime);
-                steps -= (int) Speed;
+                steps -= (int)Speed;
             }
         }
     }
