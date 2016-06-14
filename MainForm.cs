@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 #if !LINUX
 using ScintillaNET;
@@ -25,8 +25,6 @@ namespace Pyramid
         private Canvas fond;
 
         private ToolStrip toolStrip;
-        private Thread runner;
-        private System.Threading.Timer animationTick;
 
         private int frame;
         private bool done;
@@ -52,7 +50,7 @@ namespace Pyramid
                     Height = 50,
                 }
             };
-            
+
             actors = new List<Actor>();
 
             KeyPreview = true;
@@ -152,56 +150,62 @@ namespace Pyramid
 
         private void initializeEvents()
         {
-            toolStrip.ItemClicked += onItemClicked;
-            KeyDown += onKeyDown;
-
-            FormClosing += onFormClosing;
+            toolStrip.ItemClicked += OnItemClicked;
+            KeyDown += OnKeyDown;
 
             Load += (object sender, EventArgs e) => NewLevel(this, new EventArgs());
         }
 
-        private void onItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void OnItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            evaluate(editor.Text);
+            Evaluate(editor.Text);
         }
 
-        private void onKeyDown(object sender, KeyEventArgs e)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.F5)
             {
-                evaluate(editor.Text);
+                Evaluate(editor.Text);
             }
         }
 
-        private void onTick()
+        private void Evaluate(string code)
         {
-            try
+            // Dispatch the signal
+            RunLevel(this, new EventArgs());
+
+            // reset
+            Hero.Actors = actors;
+            Hero.Dead = false;
+            done = false;
+            frame = 0;
+
+            var globals = new Globals { Hero = Hero };
+            var timeTask = new Task(OnTick);
+            var heroTask = new Task(() =>
             {
-                Invoke(new MethodInvoker(onUpdate), null);
-            }
-            catch (ObjectDisposedException)
-            {
-            }
-            catch (NullReferenceException)
-            {
-            }
+                globals.Run(code);
+                End();
+            });
+
+            // FIXME: kill them, eventually.
+            // Because this program leaks like crazy ;-)
+            timeTask.Start();
+            heroTask.Start();
         }
 
-        private void onFormClosing(object sender, FormClosingEventArgs e)
+
+        private async void OnTick()
         {
-            if (animationTick != null)
+            Invoke(new MethodInvoker(OnUpdate), null);
+            while (!done)
             {
-                animationTick.Change(Timeout.Infinite, Timeout.Infinite);
-                animationTick.Dispose();
-                animationTick = null;
-            }
-            if (runner != null)
-            {
-                runner.Join();
+                await Task.Delay(1000 / 60);
+                Invoke(new MethodInvoker(OnUpdate), null);
             }
         }
 
-        private void onUpdate()
+        private void OnUpdate()
         {
             frame++;
             fond.Tick(frame);
@@ -218,50 +222,16 @@ namespace Pyramid
             fond.Invalidate();
             fond.Update();
 
-            done |= !runner.IsAlive;
-
             if (Hero.Dead)
             {
                 done = true;
                 DeadHero(this, new EventArgs());
             }
-
-            if (done)
-            {
-                animationTick.Change(Timeout.Infinite, Timeout.Infinite);
-                animationTick.Dispose();
-                animationTick = null;
-            }
-        }
-
-        private void evaluate(string code)
-        {
-            // Wait for the previous thread to be done.
-            if (runner != null)
-            {
-                Hero.Dead = true;
-                runner.Join();
-                Hero.Dead = false;
-            }
-
-            RunLevel(this, new EventArgs());
-            var evaluator = new Evaluator
-            {
-                Code = code,
-                Hero = Hero
-            };
-            Hero.Actors = actors;
-            done = false;
-            frame = 0;
-            animationTick = new System.Threading.Timer(_ => onTick(), null, 0, 1000 / 60);
-
-            runner = new Thread(new ThreadStart(evaluator.Run));
-            runner.Start();
         }
 
         public void AddActor(Actor actor)
         {
-            actors.Add(actor);                
+            actors.Add(actor);
             fond.AddActor(actor);
         }
 

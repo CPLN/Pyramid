@@ -13,28 +13,29 @@ namespace Pyramid
         public static void Main(string[] args)
         {
             var form = new MainForm();
-            form.NewLevel += onNewLevel;
-            form.RunLevel += onRunLevel;
-            form.DeadHero += onDeadHero;
+            form.NewLevel += OnNewLevel;
+            form.RunLevel += OnRunLevel;
+            form.DeadHero += OnDeadHero;
 
             Application.EnableVisualStyles();
             Application.Run(form);
         }
 
-        private static void onNewLevel(object sender, EventArgs e)
+        private static void OnNewLevel(object sender, EventArgs e)
         {
             var form = (MainForm)sender;
 
             // do-while is buggy: https://github.com/RupertAvery/csharpeval/pull/10
-            form.Code = "// Demo level\n\n"
-            + "Hero.Right(100);\n"
-            + "Hero.Down(50);\n\n"
-            + "//var ennemi = Hero.Radar();\n"
-            + "//while (ennemi != null && ennemi.Danger) {\n"
-            + "//    ennemi = Hero.Radar();\n"
-            + "//}\n\n"
-            + "Hero.Down(150);\n"
-            + "Hero.Right(100);\n";
+            form.Code = @"// Demo level
+
+Hero.Right(100);
+Hero.Down(50);
+//var ennemi = Hero.Radar();
+//while (ennemi != null && ennemi.Danger) {
+//    ennemi = Hero.Radar();
+//}
+Hero.Down(150);
+Hero.Right(100);";
 
             enemy = new CrazyEnemy()
             {
@@ -63,19 +64,19 @@ namespace Pyramid
             form.AddActor(door);
         }
 
-        private static void onRunLevel(object sender, EventArgs e)
+        private static void OnRunLevel(object sender, EventArgs e)
         {
             var form = (MainForm)sender;
 
             form.Hero.AABB.X = 0;
             form.Hero.AABB.Y = 0;
+
+            Console.WriteLine(form.Hero.AABB);
         }
 
-        private static void onDeadHero(object sender, EventArgs e)
+        private static void OnDeadHero(object sender, EventArgs e)
         {
-            // Ceci ne peut pas être fait, car on est dans un autre thread...
-            //MessageBox.Show("Votre héros est mort...");
-            Console.WriteLine("Votre heros est mort...");
+            MessageBox.Show("Votre héros est mort...");
         }
     }
 
